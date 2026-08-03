@@ -1,0 +1,12 @@
+apply plugin: 'com.palantir.gradle-plugin-testing'
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'com.palantir.external-publish-jar'
+
+gradlePlugin {
+    // do not add new task to publish to plugins.gradle.org
+    automatedPublishing = false
+}
+
+gradleTestUtils {
+    configurationCacheEnabled = true
+}
