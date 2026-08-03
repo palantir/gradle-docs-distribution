@@ -1,0 +1,26 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'com.palantir.ai-docs.produce.root'
+}
+
+group = 'com.example'
+version = '1.2.3'
+
+gradlePlugin {
+    automatedPublishing = false
+    plugins {
+        fixture {
+            id = 'com.example.fixture'
+            implementationClass = 'com.example.ExamplePlugin'
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = 'test'
+            url = uri(layout.buildDirectory.dir('test-repository'))
+        }
+    }
+}
