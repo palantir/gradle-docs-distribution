@@ -4,6 +4,8 @@ apply plugin: 'com.palantir.external-publish-jar'
 
 dependencies {
     compileOnly gradleApi()
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 }
 
 gradlePlugin {
@@ -17,6 +19,10 @@ gradlePlugin {
         aiDocsProduceRoot {
             id = 'com.palantir.ai-docs.produce.root'
             implementationClass = 'com.palantir.gradle.aidocs.AiDocsProduceRootPlugin'
+        }
+        aiDocsConsumeRoot {
+            id = 'com.palantir.ai-docs.consume.root'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsConsumeRootPlugin'
         }
     }
 }
