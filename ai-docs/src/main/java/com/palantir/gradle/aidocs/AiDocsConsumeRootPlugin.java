@@ -16,6 +16,7 @@
 
 package com.palantir.gradle.aidocs;
 
+import com.palantir.gradle.aidocs.tasks.CheckAgentInstructions;
 import com.palantir.gradle.aidocs.tasks.ConstructIndex;
 import com.palantir.gradle.aidocs.tasks.PullArtifacts;
 import com.palantir.gradle.aidocs.types.Location;
@@ -40,6 +41,7 @@ import org.gradle.api.attributes.DocsType;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
 /** Resolves project and Gradle plugin dependencies into source and documentation trees for AI agents. */
 public abstract class AiDocsConsumeRootPlugin implements Plugin<Project> {
@@ -52,6 +54,7 @@ public abstract class AiDocsConsumeRootPlugin implements Plugin<Project> {
             throw new RuntimeException("com.palantir.ai-docs.consume.root can only be applied to the root project");
         }
 
+        project.getPluginManager().apply(LifecycleBasePlugin.class);
         project.getDependencies()
                 .getAttributesSchema()
                 .attribute(
@@ -124,6 +127,7 @@ public abstract class AiDocsConsumeRootPlugin implements Plugin<Project> {
                 gradlePluginDocs,
                 pullSource,
                 pullDocs);
+        registerCheckAgentInstructions(project);
     }
 
     private static TaskProvider<PullArtifacts> registerPullSource(
@@ -171,6 +175,14 @@ public abstract class AiDocsConsumeRootPlugin implements Plugin<Project> {
             task.getProjectDependencyIdToLocations().set(projectDependencyLocations);
             task.getGradlePluginIdToLocations().set(gradlePluginLocations);
         });
+    }
+
+    private static void registerCheckAgentInstructions(Project project) {
+        TaskProvider<CheckAgentInstructions> checkAgentInstructions =
+                project.getTasks().register("checkAgentInstructions", CheckAgentInstructions.class);
+        project.getTasks()
+                .named(LifecycleBasePlugin.CHECK_TASK_NAME)
+                .configure(check -> check.dependsOn(checkAgentInstructions));
     }
 
     private static void setUsageAttribute(Project project, Configuration configuration, String usage) {
