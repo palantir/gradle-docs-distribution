@@ -140,7 +140,7 @@ class CheckAgentInstructionsTest {
     }
 
     private static void applyAiDocsPlugins(RootProject root) {
-        root.buildGradle().plugins().add("com.palantir.ai-docs.produce.root").add("com.palantir.ai-docs.consume.root");
+        root.buildGradle().plugins().add("com.palantir.ai-docs");
     }
 
     private static Path agentInstructionsDirectory(RootProject root) {
