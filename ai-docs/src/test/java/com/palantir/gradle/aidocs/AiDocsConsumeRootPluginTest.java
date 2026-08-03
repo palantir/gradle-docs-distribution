@@ -19,13 +19,16 @@ package com.palantir.gradle.aidocs;
 import static com.palantir.gradle.testing.assertion.GradlePluginTestAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.palantir.gradle.aidocs.tasks.CheckAgentInstructions;
 import com.palantir.gradle.testing.execution.GradleInvoker;
 import com.palantir.gradle.testing.execution.InvocationResult;
 import com.palantir.gradle.testing.junit.GradlePluginTests;
 import com.palantir.gradle.testing.project.RootProject;
 import com.palantir.gradle.testing.project.SubProject;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
@@ -37,7 +40,7 @@ class AiDocsConsumeRootPluginTest {
     class ArtifactResolution {
         @Test
         void constructs_dependency_index_from_project_dependency_and_gradle_plugin(
-                GradleInvoker gradle, RootProject root) {
+                GradleInvoker gradle, RootProject root) throws IOException, InterruptedException {
             Path repository = mavenRepository();
             configureConsumer(root, repository);
 
@@ -92,6 +95,18 @@ class AiDocsConsumeRootPluginTest {
                             code: library
                             docs: library-root
                         """);
+
+            CheckAgentInstructions.writeAgentInstructions(agentInstructionsDirectory(root));
+            Path locate = agentInstructionsDirectory(root).resolve("locate");
+            Process process = new ProcessBuilder(locate.toString(), "--type=project-dependency", "com.example:library")
+                    .redirectErrorStream(true)
+                    .start();
+            String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            assertThat(process.waitFor()).as("locate exit code").isZero();
+            assertThat(output.lines())
+                    .containsExactly(
+                            source.resolve("library/1.0.0").toString(),
+                            docs.resolve("library-root/1.0.0").toString());
         }
 
         @Test
@@ -161,6 +176,10 @@ class AiDocsConsumeRootPluginTest {
                 }
             }
             """.formatted(repository);
+    }
+
+    private static Path agentInstructionsDirectory(RootProject root) {
+        return root.path().resolve(".claude/skills/read-dependencies");
     }
 
     private static Path mavenRepository() {

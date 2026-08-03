@@ -4,6 +4,7 @@ apply plugin: 'com.palantir.external-publish-jar'
 
 dependencies {
     compileOnly gradleApi()
+    compileOnly 'com.google.guava:guava'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
 }

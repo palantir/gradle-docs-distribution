@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import sys
+
+root = Path(__file__).resolve().parents[3]
+ai_docs = root / "build/ai-docs"
+locations = ai_docs / "dependency-locations.yaml"
+if not locations.is_file():
+    raise SystemExit("Missing build/ai-docs/dependency-locations.yaml; run ./gradlew constructIndex")
+
+if len(sys.argv) < 3 or sys.argv[1] not in ("--type=plugin", "--type=project-dependency"):
+    raise SystemExit("usage: locate --type=plugin|--type=project-dependency <dependency>...")
+
+section = "gradlePlugins" if sys.argv[1] == "--type=plugin" else "projectDependencies"
+lines = locations.read_text().splitlines()
+
+
+def find(key):
+    in_section = False
+    found = False
+    values = {}
+    for line in lines:
+        if line and not line.startswith(" "):
+            if found:
+                break
+            in_section = line == section + ":"
+            continue
+        if not in_section:
+            continue
+        if line == "  " + key + ":":
+            found = True
+            values = {}
+            continue
+        if found and line.startswith("    "):
+            name, value = line.strip().split(": ", 1)
+            values[name] = value.strip('"')
+        elif found:
+            break
+    return values if found else {}
+
+
+for key in sys.argv[2:]:
+    value = find(key)
+    if not value or "code" not in value:
+        print(f"not found: {key}", file=sys.stderr)
+        continue
+    group_path = value["group"].replace(".", "/")
+    print(ai_docs / "source" / group_path / value["code"] / value["version"])
+    if "docs" in value:
+        print(ai_docs / "docs" / group_path / value["docs"] / value["version"])
