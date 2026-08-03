@@ -13,6 +13,10 @@ gradlePlugin {
     // do not add new task to publish to plugins.gradle.org
     automatedPublishing = false
     plugins {
+        aiDocs {
+            id = 'com.palantir.ai-docs'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsPlugin'
+        }
         aiDocsProduce {
             id = 'com.palantir.ai-docs.produce'
             implementationClass = 'com.palantir.gradle.aidocs.AiDocsProducePlugin'
