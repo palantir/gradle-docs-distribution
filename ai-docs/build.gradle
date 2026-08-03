@@ -2,9 +2,23 @@ apply plugin: 'com.palantir.gradle-plugin-testing'
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'com.palantir.external-publish-jar'
 
+dependencies {
+    compileOnly gradleApi()
+}
+
 gradlePlugin {
     // do not add new task to publish to plugins.gradle.org
     automatedPublishing = false
+    plugins {
+        aiDocsProduce {
+            id = 'com.palantir.ai-docs.produce'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsProducePlugin'
+        }
+        aiDocsProduceRoot {
+            id = 'com.palantir.ai-docs.produce.root'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsProduceRootPlugin'
+        }
+    }
 }
 
 gradleTestUtils {
