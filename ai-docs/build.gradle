@@ -1,0 +1,37 @@
+apply plugin: 'com.palantir.gradle-plugin-testing'
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'com.palantir.external-publish-jar'
+
+dependencies {
+    compileOnly gradleApi()
+    compileOnly 'com.google.guava:guava'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+}
+
+gradlePlugin {
+    // do not add new task to publish to plugins.gradle.org
+    automatedPublishing = false
+    plugins {
+        aiDocs {
+            id = 'com.palantir.ai-docs'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsPlugin'
+        }
+        aiDocsProduce {
+            id = 'com.palantir.ai-docs.produce'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsProducePlugin'
+        }
+        aiDocsProduceRoot {
+            id = 'com.palantir.ai-docs.produce.root'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsProduceRootPlugin'
+        }
+        aiDocsConsumeRoot {
+            id = 'com.palantir.ai-docs.consume.root'
+            implementationClass = 'com.palantir.gradle.aidocs.AiDocsConsumeRootPlugin'
+        }
+    }
+}
+
+gradleTestUtils {
+    configurationCacheEnabled = true
+}

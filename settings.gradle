@@ -1,0 +1,14 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.palantir.gradle.jdks:gradle-jdks-settings:0.81.0'
+    }
+}
+apply plugin: 'com.palantir.jdks.settings'
+
+rootProject.name = 'gradle-docs-distribution-root'
+
+include 'ai-docs'
